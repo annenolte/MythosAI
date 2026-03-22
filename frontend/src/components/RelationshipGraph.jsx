@@ -16,8 +16,7 @@ const positions = [
   { x: 150, y: 170 },  // left top
 ]
 
-function RelationshipGraph() {
-  const [isOpen, setIsOpen] = useState(false)
+function RelationshipGraph({ isOpen, onToggle }) {
   const [hoveredRelation, setHoveredRelation] = useState(null)
   const [hoveredChar, setHoveredChar] = useState(null)
   const { isDark } = useTheme()
@@ -28,21 +27,7 @@ function RelationshipGraph() {
   })
 
   return (
-    <div className="mb-6">
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium bg-gradient-to-r from-amber-400 to-rose-400 text-white shadow-lg shadow-amber-300/20 hover:shadow-amber-300/40 transition-all"
-      >
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <circle cx="6" cy="6" r="3" />
-          <circle cx="18" cy="18" r="3" />
-          <circle cx="18" cy="6" r="3" />
-          <line x1="8.5" y1="7.5" x2="15.5" y2="16.5" />
-          <line x1="15.5" y1="7.5" x2="8.5" y2="16.5" />
-        </svg>
-        Character Connections
-      </button>
-
+    <div className={isOpen ? 'mb-6' : ''}>
       <AnimatePresence>
         {isOpen && (
           <motion.div

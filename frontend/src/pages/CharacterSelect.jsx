@@ -28,6 +28,8 @@ function CharacterSelect() {
   const { isDark, toggleTheme } = useTheme()
   const navigate = useNavigate()
   const [conversations, setConversations] = useState([])
+  const [moodOpen, setMoodOpen] = useState(false)
+  const [connectionsOpen, setConnectionsOpen] = useState(false)
 
   useEffect(() => {
     loadConversations()
@@ -134,60 +136,81 @@ function CharacterSelect() {
         </div>
 
         {/* Feature buttons row */}
-        <div className="grid grid-cols-4 gap-3 mb-6">
-          {/* Surprise Me */}
+        <div className="flex flex-nowrap gap-2 mb-6">
           <button
             onClick={handleSurpriseMe}
-            className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium bg-gradient-to-r from-amber-400 to-orange-500 text-white shadow-lg shadow-amber-300/20 hover:shadow-amber-300/40 transition-all"
+            className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium bg-gradient-to-r from-amber-400 to-orange-500 text-white shadow-lg shadow-amber-300/20 hover:shadow-amber-300/40 transition-all whitespace-nowrap"
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M12 2L2 7l10 5 10-5-10-5z" /><path d="M2 17l10 5 10-5" /><path d="M2 12l10 5 10-5" />
             </svg>
             Surprise Me
           </button>
 
-          {/* Oracle Debate */}
           <button
             onClick={() => navigate('/debate')}
-            className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium bg-gradient-to-r from-rose-400 to-purple-500 text-white shadow-lg shadow-rose-300/20 hover:shadow-rose-300/40 transition-all"
+            className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium bg-gradient-to-r from-rose-400 to-purple-500 text-white shadow-lg shadow-rose-300/20 hover:shadow-rose-300/40 transition-all whitespace-nowrap"
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
             </svg>
             Oracle Debate
           </button>
 
-          {/* Personality Quiz */}
           <button
             onClick={() => navigate('/quiz')}
-            className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium bg-gradient-to-r from-teal-400 to-cyan-500 text-white shadow-lg shadow-teal-300/20 hover:shadow-teal-300/40 transition-all"
+            className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium bg-gradient-to-r from-teal-400 to-cyan-500 text-white shadow-lg shadow-teal-300/20 hover:shadow-teal-300/40 transition-all whitespace-nowrap"
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="12" cy="12" r="10" />
               <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
               <line x1="12" y1="17" x2="12.01" y2="17" />
             </svg>
-            Which Oracle Are You?
+            Which Oracle?
           </button>
 
-          {/* Wisdom Journal */}
           <button
             onClick={() => navigate('/journal')}
-            className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium bg-gradient-to-r from-indigo-400 to-violet-500 text-white shadow-lg shadow-indigo-300/20 hover:shadow-indigo-300/40 transition-all"
+            className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium bg-gradient-to-r from-indigo-400 to-violet-500 text-white shadow-lg shadow-indigo-300/20 hover:shadow-indigo-300/40 transition-all whitespace-nowrap"
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
               <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
             </svg>
-            Wisdom Journal
+            Journal
+          </button>
+
+          <button
+            onClick={() => { setMoodOpen(!moodOpen); setConnectionsOpen(false) }}
+            className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium bg-gradient-to-r from-purple-500 to-teal-400 text-white shadow-lg shadow-purple-300/20 hover:shadow-purple-300/40 transition-all whitespace-nowrap"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10" />
+              <path d="M8 14s1.5 2 4 2 4-2 4-2" />
+              <line x1="9" y1="9" x2="9.01" y2="9" />
+              <line x1="15" y1="9" x2="15.01" y2="9" />
+            </svg>
+            Mood Match
+          </button>
+
+          <button
+            onClick={() => { setConnectionsOpen(!connectionsOpen); setMoodOpen(false) }}
+            className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium bg-gradient-to-r from-amber-400 to-rose-400 text-white shadow-lg shadow-amber-300/20 hover:shadow-amber-300/40 transition-all whitespace-nowrap"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="6" cy="6" r="3" />
+              <circle cx="18" cy="18" r="3" />
+              <circle cx="18" cy="6" r="3" />
+              <line x1="8.5" y1="7.5" x2="15.5" y2="16.5" />
+              <line x1="15.5" y1="7.5" x2="8.5" y2="16.5" />
+            </svg>
+            Connections
           </button>
         </div>
 
-        {/* Mood Recommender */}
-        <MoodRecommender />
-
-        {/* Relationship Graph */}
-        <RelationshipGraph />
+        {/* Expandable panels */}
+        <MoodRecommender isOpen={moodOpen} onToggle={() => setMoodOpen(!moodOpen)} />
+        <RelationshipGraph isOpen={connectionsOpen} onToggle={() => setConnectionsOpen(!connectionsOpen)} />
 
         {/* Conversation History */}
         {conversations.length > 0 && (

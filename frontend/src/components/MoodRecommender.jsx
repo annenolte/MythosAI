@@ -4,10 +4,9 @@ import { useNavigate } from 'react-router-dom'
 import { characters } from '../data/characters'
 import { avatarMap } from './characters'
 
-function MoodRecommender() {
+function MoodRecommender({ isOpen, onToggle }) {
   const [mood, setMood] = useState('')
   const [recommendation, setRecommendation] = useState(null)
-  const [isOpen, setIsOpen] = useState(false)
   const navigate = useNavigate()
 
   const findMatch = () => {
@@ -50,20 +49,7 @@ function MoodRecommender() {
   const AvatarComponent = recommendation ? avatarMap[recommendation.id] : null
 
   return (
-    <div className="mb-6">
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium bg-gradient-to-r from-purple-500 to-teal-400 text-white shadow-lg shadow-purple-300/20 hover:shadow-purple-300/40 transition-all"
-      >
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <circle cx="12" cy="12" r="10" />
-          <path d="M8 14s1.5 2 4 2 4-2 4-2" />
-          <line x1="9" y1="9" x2="9.01" y2="9" />
-          <line x1="15" y1="9" x2="15.01" y2="9" />
-        </svg>
-        How are you feeling?
-      </button>
-
+    <div className={isOpen ? 'mb-6' : ''}>
       <AnimatePresence>
         {isOpen && (
           <motion.div
