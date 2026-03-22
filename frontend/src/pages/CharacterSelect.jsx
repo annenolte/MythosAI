@@ -134,11 +134,11 @@ function CharacterSelect() {
         </div>
 
         {/* Feature buttons row */}
-        <div className="flex flex-wrap gap-3 mb-6">
+        <div className="grid grid-cols-4 gap-3 mb-6">
           {/* Surprise Me */}
           <button
             onClick={handleSurpriseMe}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium bg-gradient-to-r from-amber-400 to-orange-500 text-white shadow-lg shadow-amber-300/20 hover:shadow-amber-300/40 transition-all"
+            className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium bg-gradient-to-r from-amber-400 to-orange-500 text-white shadow-lg shadow-amber-300/20 hover:shadow-amber-300/40 transition-all"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M12 2L2 7l10 5 10-5-10-5z" /><path d="M2 17l10 5 10-5" /><path d="M2 12l10 5 10-5" />
@@ -149,7 +149,7 @@ function CharacterSelect() {
           {/* Oracle Debate */}
           <button
             onClick={() => navigate('/debate')}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium bg-gradient-to-r from-rose-400 to-purple-500 text-white shadow-lg shadow-rose-300/20 hover:shadow-rose-300/40 transition-all"
+            className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium bg-gradient-to-r from-rose-400 to-purple-500 text-white shadow-lg shadow-rose-300/20 hover:shadow-rose-300/40 transition-all"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
@@ -160,7 +160,7 @@ function CharacterSelect() {
           {/* Personality Quiz */}
           <button
             onClick={() => navigate('/quiz')}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium bg-gradient-to-r from-teal-400 to-cyan-500 text-white shadow-lg shadow-teal-300/20 hover:shadow-teal-300/40 transition-all"
+            className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium bg-gradient-to-r from-teal-400 to-cyan-500 text-white shadow-lg shadow-teal-300/20 hover:shadow-teal-300/40 transition-all"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="12" cy="12" r="10" />
@@ -173,7 +173,7 @@ function CharacterSelect() {
           {/* Wisdom Journal */}
           <button
             onClick={() => navigate('/journal')}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium bg-gradient-to-r from-indigo-400 to-violet-500 text-white shadow-lg shadow-indigo-300/20 hover:shadow-indigo-300/40 transition-all"
+            className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium bg-gradient-to-r from-indigo-400 to-violet-500 text-white shadow-lg shadow-indigo-300/20 hover:shadow-indigo-300/40 transition-all"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
