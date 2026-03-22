@@ -139,7 +139,7 @@ function CharacterSelect() {
         <div className="flex flex-nowrap gap-2 mb-6">
           <button
             onClick={handleSurpriseMe}
-            className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium bg-gradient-to-r from-amber-400 to-orange-500 text-white shadow-lg shadow-amber-300/20 hover:shadow-amber-300/40 transition-all whitespace-nowrap"
+            className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium bg-amber-500 text-white shadow-lg shadow-amber-300/20 hover:bg-amber-600 transition-all whitespace-nowrap"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M12 2L2 7l10 5 10-5-10-5z" /><path d="M2 17l10 5 10-5" /><path d="M2 12l10 5 10-5" />
@@ -149,7 +149,7 @@ function CharacterSelect() {
 
           <button
             onClick={() => navigate('/debate')}
-            className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium bg-gradient-to-r from-rose-400 to-purple-500 text-white shadow-lg shadow-rose-300/20 hover:shadow-rose-300/40 transition-all whitespace-nowrap"
+            className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium bg-rose-500 text-white shadow-lg shadow-rose-300/20 hover:bg-rose-600 transition-all whitespace-nowrap"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
@@ -159,7 +159,7 @@ function CharacterSelect() {
 
           <button
             onClick={() => navigate('/quiz')}
-            className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium bg-gradient-to-r from-teal-400 to-cyan-500 text-white shadow-lg shadow-teal-300/20 hover:shadow-teal-300/40 transition-all whitespace-nowrap"
+            className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium bg-teal-500 text-white shadow-lg shadow-teal-300/20 hover:bg-teal-600 transition-all whitespace-nowrap"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="12" cy="12" r="10" />
@@ -171,7 +171,7 @@ function CharacterSelect() {
 
           <button
             onClick={() => navigate('/journal')}
-            className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium bg-gradient-to-r from-indigo-400 to-violet-500 text-white shadow-lg shadow-indigo-300/20 hover:shadow-indigo-300/40 transition-all whitespace-nowrap"
+            className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium bg-indigo-500 text-white shadow-lg shadow-indigo-300/20 hover:bg-indigo-600 transition-all whitespace-nowrap"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
@@ -182,7 +182,7 @@ function CharacterSelect() {
 
           <button
             onClick={() => { setMoodOpen(!moodOpen); setConnectionsOpen(false) }}
-            className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium bg-gradient-to-r from-purple-500 to-teal-400 text-white shadow-lg shadow-purple-300/20 hover:shadow-purple-300/40 transition-all whitespace-nowrap"
+            className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium bg-purple-500 text-white shadow-lg shadow-purple-300/20 hover:bg-purple-600 transition-all whitespace-nowrap"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="12" cy="12" r="10" />
@@ -195,7 +195,7 @@ function CharacterSelect() {
 
           <button
             onClick={() => { setConnectionsOpen(!connectionsOpen); setMoodOpen(false) }}
-            className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium bg-gradient-to-r from-amber-400 to-rose-400 text-white shadow-lg shadow-amber-300/20 hover:shadow-amber-300/40 transition-all whitespace-nowrap"
+            className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium bg-amber-500 text-white shadow-lg shadow-amber-300/20 hover:bg-amber-600 transition-all whitespace-nowrap"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="6" cy="6" r="3" />
