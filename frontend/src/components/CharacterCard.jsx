@@ -10,7 +10,7 @@ const mythologyColors = {
   'East Asian': '#E74C3C',
 }
 
-function CharacterCard({ character, onClick }) {
+function CharacterCard({ character, onClick, dailyWisdom }) {
   const [isHovered, setIsHovered] = useState(false)
   const AvatarComponent = avatarMap[character.id]
 
@@ -77,6 +77,19 @@ function CharacterCard({ character, onClick }) {
 
           {/* Tagline */}
           <p className="text-slate-600 text-sm leading-relaxed">{character.tagline}</p>
+
+          {/* Daily Wisdom */}
+          {dailyWisdom && (
+            <div
+              className="mt-3 pt-3 w-full border-t text-xs italic leading-relaxed"
+              style={{
+                borderColor: `${character.colors.primary}20`,
+                color: `${character.colors.primary}cc`,
+              }}
+            >
+              &ldquo;{dailyWisdom}&rdquo;
+            </div>
+          )}
         </div>
       </div>
     </motion.div>

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
 import { getCharacterById } from '../data/characters'
@@ -10,7 +10,9 @@ import TypingIndicator from '../components/TypingIndicator'
 import SuggestedQuestions from '../components/SuggestedQuestions'
 import { culturalBorders, culturalPatternBgs } from '../components/CulturalPatterns'
 import CharacterIntro from '../components/CharacterIntro'
+import VoiceInput from '../components/VoiceInput'
 import { API_BASE } from '../lib/api'
+import { playResponseChime, playWhoosh } from '../lib/sounds'
 
 function ChatPage() {
   const { characterId, conversationId: urlConversationId } = useParams()
@@ -27,6 +29,7 @@ function ChatPage() {
   const [conversationId, setConversationId] = useState(urlConversationId || null)
   const [isInitialized, setIsInitialized] = useState(false)
   const [newestMessageIndex, setNewestMessageIndex] = useState(-1)
+  const [showEntrance, setShowEntrance] = useState(!urlConversationId)
 
   const messagesEndRef = useRef(null)
   const inputRef = useRef(null)
@@ -38,6 +41,15 @@ function ChatPage() {
   useEffect(() => {
     scrollToBottom()
   }, [messages, isLoading, scrollToBottom])
+
+  // Play entrance whoosh on new conversations
+  useEffect(() => {
+    if (showEntrance) {
+      playWhoosh()
+      const timer = setTimeout(() => setShowEntrance(false), 1500)
+      return () => clearTimeout(timer)
+    }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (isInitialized) return
@@ -101,7 +113,6 @@ function ChatPage() {
       const decoder = new TextDecoder()
       let fullText = ''
 
-      // Collect the greeting silently — no token-by-token streaming for the intro
       while (true) {
         const { done, value } = await reader.read()
         if (done) break
@@ -124,7 +135,6 @@ function ChatPage() {
         }
       }
 
-      // Show the greeting all at once
       const greetingResponse = { role: 'assistant', content: fullText }
       await supabase.from('messages').insert({
         conversation_id: conv.id,
@@ -135,6 +145,7 @@ function ChatPage() {
       setAllMessages([greetingPrompt, greetingResponse])
       setMessages([greetingResponse])
       setNewestMessageIndex(0)
+      playResponseChime()
     } catch (err) {
       setMessages([{ role: 'assistant', content: 'The spirits are restless... Unable to connect to the oracle.' }])
     }
@@ -236,6 +247,8 @@ function ChatPage() {
         role: 'assistant',
         content: fullText,
       })
+
+      playResponseChime()
     } catch (err) {
       setMessages((prev) => [
         ...prev,
@@ -259,6 +272,20 @@ function ChatPage() {
     }
   }
 
+  const handleVoiceResult = (transcript) => {
+    setInput(transcript)
+    // Auto-send after voice input
+    setTimeout(() => sendMessage(transcript), 300)
+  }
+
+  // Find the previous user message for a given message index
+  const getPreviousUserMessage = (index) => {
+    for (let i = index - 1; i >= 0; i--) {
+      if (messages[i].role === 'user') return messages[i].content
+    }
+    return null
+  }
+
   if (!character) {
     return (
       <div className="min-h-screen flex items-center justify-center text-slate-800">
@@ -278,6 +305,39 @@ function ChatPage() {
       transition={{ duration: 0.3 }}
       className="min-h-screen flex flex-col"
     >
+      {/* Dramatic character entrance overlay */}
+      <AnimatePresence>
+        {showEntrance && (
+          <motion.div
+            initial={{ opacity: 1 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.6 }}
+            className="fixed inset-0 z-50 flex items-center justify-center"
+            style={{ background: `linear-gradient(135deg, ${character.colors.primary}40, ${character.colors.secondary}40)` }}
+          >
+            <motion.div
+              initial={{ scale: 0, opacity: 0 }}
+              animate={{ scale: [0, 1.2, 1], opacity: [0, 1, 1] }}
+              exit={{ scale: 1.5, opacity: 0 }}
+              transition={{ duration: 1.2, ease: 'easeOut' }}
+              className="text-center"
+            >
+              {AvatarComponent && <AvatarComponent size={140} hover={true} />}
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 }}
+                className="mt-4 text-2xl font-bold text-white"
+                style={{ fontFamily: "'Cinzel Decorative', Georgia, serif", textShadow: '0 2px 20px rgba(0,0,0,0.3)' }}
+              >
+                {character.name}
+              </motion.p>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Header */}
       <div
         className="flex items-center gap-3 px-4 py-3 backdrop-blur-xl bg-white/70 border-b z-20"
@@ -331,6 +391,7 @@ function ChatPage() {
               message={message}
               character={character}
               isNew={index === newestMessageIndex || message._streaming}
+              userQuestion={getPreviousUserMessage(index)}
             />
           ))}
 
@@ -369,6 +430,11 @@ function ChatPage() {
         style={{ borderColor: `${character.colors.primary}30` }}
       >
         <form onSubmit={handleSubmit} className="flex items-center gap-2 max-w-4xl mx-auto">
+          <VoiceInput
+            onResult={handleVoiceResult}
+            color={character.colors.primary}
+            disabled={isLoading}
+          />
           <input
             ref={inputRef}
             type="text"

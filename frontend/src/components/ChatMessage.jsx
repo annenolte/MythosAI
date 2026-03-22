@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import ReactMarkdown from 'react-markdown'
 import { avatarMap } from './characters'
 import { API_BASE } from '../lib/api'
+import ShareQuoteModal from './ShareQuoteModal'
 
 // Module-level singleton so only one message plays at a time
 let currentAudio = null
@@ -33,12 +34,14 @@ function SpinnerIcon() {
   )
 }
 
-function ChatMessage({ message, character, isNew }) {
+function ChatMessage({ message, character, isNew, userQuestion }) {
   const isUser = message.role === 'user'
   const AvatarComponent = avatarMap[character?.id]
   const [isLoading, setIsLoading] = useState(false)
   const [isPlaying, setIsPlaying] = useState(false)
   const [hasError, setHasError] = useState(false)
+  const [showShare, setShowShare] = useState(false)
+  const [bookmarked, setBookmarked] = useState(false)
   const audioRef = useRef(null)
 
   // Clean up audio when component unmounts
@@ -52,7 +55,6 @@ function ChatMessage({ message, character, isNew }) {
   }, [])
 
   const handleSpeak = async () => {
-    // Stop if already playing
     if (isPlaying && audioRef.current) {
       audioRef.current.pause()
       audioRef.current = null
@@ -60,7 +62,6 @@ function ChatMessage({ message, character, isNew }) {
       return
     }
 
-    // Stop any other playing audio
     if (currentAudio) {
       currentAudio.pause()
       currentAudio = null
@@ -114,6 +115,19 @@ function ChatMessage({ message, character, isNew }) {
     }
   }
 
+  const handleBookmark = () => {
+    const journal = JSON.parse(localStorage.getItem('oracle-journal') || '[]')
+    journal.push({
+      characterId: character?.id,
+      content: message.content,
+      userQuestion: userQuestion || null,
+      savedAt: new Date().toISOString(),
+    })
+    localStorage.setItem('oracle-journal', JSON.stringify(journal))
+    setBookmarked(true)
+    setTimeout(() => setBookmarked(false), 2000)
+  }
+
   // Don't re-animate streaming messages on every token — only animate on first appear
   const shouldAnimate = isNew && !message._streaming
   const Wrapper = shouldAnimate ? motion.div : 'div'
@@ -126,76 +140,126 @@ function ChatMessage({ message, character, isNew }) {
     : {}
 
   return (
-    <Wrapper {...wrapperProps} className={`flex ${isUser ? 'justify-end' : 'justify-start'} mb-4`}>
-      <div className={`max-w-[80%] ${isUser ? 'items-end' : 'items-start'}`}>
-        {/* Character label for assistant messages */}
-        {!isUser && character && (
-          <div className="flex items-center gap-2 mb-1.5 ml-1">
-            {AvatarComponent && (
-              <AvatarComponent size={24} hover={false} />
-            )}
-            <span
-              className="text-xs font-semibold"
-              style={{ color: character.colors.primary }}
-            >
-              {character.name}
-            </span>
-          </div>
-        )}
+    <>
+      <Wrapper {...wrapperProps} className={`flex ${isUser ? 'justify-end' : 'justify-start'} mb-4`}>
+        <div className={`max-w-[80%] ${isUser ? 'items-end' : 'items-start'}`}>
+          {/* Character label for assistant messages */}
+          {!isUser && character && (
+            <div className="flex items-center gap-2 mb-1.5 ml-1">
+              {AvatarComponent && (
+                <AvatarComponent size={24} hover={false} />
+              )}
+              <span
+                className="text-xs font-semibold"
+                style={{ color: character.colors.primary }}
+              >
+                {character.name}
+              </span>
+            </div>
+          )}
 
-        {/* Message bubble */}
-        <div
-          className={`rounded-2xl px-4 py-3 ${
-            isUser
-              ? 'rounded-br-md'
-              : 'bg-white/90 backdrop-blur-sm rounded-bl-md shadow-sm'
-          }`}
-          style={
-            isUser
-              ? {
-                  backgroundColor: `${character?.colors?.primary || '#7C3AED'}25`,
-                  color: '#1e293b',
-                }
-              : {
-                  borderLeft: `4px solid ${character?.colors?.primary || '#7C3AED'}`,
-                  color: '#1e293b',
-                }
-          }
-        >
-          {isUser ? (
-            <p className="text-sm leading-relaxed whitespace-pre-wrap text-slate-800">{message.content}</p>
-          ) : (
-            <div className="text-sm leading-relaxed prose prose-sm max-w-none prose-headings:text-slate-800 prose-p:text-slate-700 prose-strong:text-slate-800 prose-li:text-slate-700 prose-a:text-purple-600 [&_p]:mb-2 [&_p:last-child]:mb-0 [&_ul]:mb-2 [&_ol]:mb-2 [&_li]:mb-0.5">
-              <ReactMarkdown>{message.content}</ReactMarkdown>
+          {/* Message bubble */}
+          <div
+            className={`rounded-2xl px-4 py-3 ${
+              isUser
+                ? 'rounded-br-md'
+                : 'bg-white/90 backdrop-blur-sm rounded-bl-md shadow-sm'
+            }`}
+            style={
+              isUser
+                ? {
+                    backgroundColor: `${character?.colors?.primary || '#7C3AED'}25`,
+                    color: '#1e293b',
+                  }
+                : {
+                    borderLeft: `4px solid ${character?.colors?.primary || '#7C3AED'}`,
+                    color: '#1e293b',
+                  }
+            }
+          >
+            {isUser ? (
+              <p className="text-sm leading-relaxed whitespace-pre-wrap text-slate-800">{message.content}</p>
+            ) : (
+              <div className="text-sm leading-relaxed prose prose-sm max-w-none prose-headings:text-slate-800 prose-p:text-slate-700 prose-strong:text-slate-800 prose-li:text-slate-700 prose-a:text-purple-600 [&_p]:mb-2 [&_p:last-child]:mb-0 [&_ul]:mb-2 [&_ol]:mb-2 [&_li]:mb-0.5">
+                <ReactMarkdown>{message.content}</ReactMarkdown>
+              </div>
+            )}
+          </div>
+
+          {/* Action buttons — only for completed assistant messages */}
+          {!isUser && !message._streaming && (
+            <div className="mt-2 ml-1 flex items-center gap-2 flex-wrap">
+              {/* TTS button */}
+              <button
+                onClick={handleSpeak}
+                disabled={isLoading || hasError}
+                title={isPlaying ? 'Stop' : 'Listen'}
+                className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full border transition-all duration-150 cursor-pointer disabled:cursor-default hover:shadow-sm active:scale-95"
+                style={{
+                  color: hasError ? '#ef4444' : isPlaying ? '#fff' : character?.colors?.primary || '#7C3AED',
+                  backgroundColor: hasError
+                    ? '#fef2f2'
+                    : isPlaying
+                    ? character?.colors?.primary || '#7C3AED'
+                    : `${character?.colors?.primary || '#7C3AED'}12`,
+                  borderColor: hasError ? '#fca5a5' : `${character?.colors?.primary || '#7C3AED'}50`,
+                }}
+              >
+                {isLoading ? <SpinnerIcon /> : isPlaying ? <StopIcon /> : <SpeakerIcon />}
+                <span>{hasError ? 'Error' : isLoading ? 'Loading\u2026' : isPlaying ? 'Stop' : 'Listen'}</span>
+              </button>
+
+              {/* Share button */}
+              <button
+                onClick={() => setShowShare(true)}
+                title="Share this wisdom"
+                className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full border transition-all duration-150 cursor-pointer hover:shadow-sm active:scale-95"
+                style={{
+                  color: character?.colors?.primary || '#7C3AED',
+                  backgroundColor: `${character?.colors?.primary || '#7C3AED'}12`,
+                  borderColor: `${character?.colors?.primary || '#7C3AED'}50`,
+                }}
+              >
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" />
+                  <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+                  <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+                </svg>
+                <span>Share</span>
+              </button>
+
+              {/* Bookmark button */}
+              <button
+                onClick={handleBookmark}
+                title={bookmarked ? 'Saved!' : 'Save to journal'}
+                className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full border transition-all duration-150 cursor-pointer hover:shadow-sm active:scale-95"
+                style={{
+                  color: bookmarked ? '#fff' : character?.colors?.primary || '#7C3AED',
+                  backgroundColor: bookmarked
+                    ? character?.colors?.primary || '#7C3AED'
+                    : `${character?.colors?.primary || '#7C3AED'}12`,
+                  borderColor: `${character?.colors?.primary || '#7C3AED'}50`,
+                }}
+              >
+                <svg width="12" height="12" viewBox="0 0 24 24" fill={bookmarked ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
+                </svg>
+                <span>{bookmarked ? 'Saved!' : 'Save'}</span>
+              </button>
             </div>
           )}
         </div>
+      </Wrapper>
 
-        {/* TTS button — only for completed assistant messages */}
-        {!isUser && !message._streaming && (
-          <div className="mt-2 ml-1">
-            <button
-              onClick={handleSpeak}
-              disabled={isLoading || hasError}
-              title={isPlaying ? 'Stop' : 'Listen'}
-              className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full border transition-all duration-150 cursor-pointer disabled:cursor-default hover:shadow-sm active:scale-95"
-              style={{
-                color: hasError ? '#ef4444' : isPlaying ? '#fff' : character?.colors?.primary || '#7C3AED',
-                backgroundColor: hasError
-                  ? '#fef2f2'
-                  : isPlaying
-                  ? character?.colors?.primary || '#7C3AED'
-                  : `${character?.colors?.primary || '#7C3AED'}12`,
-                borderColor: hasError ? '#fca5a5' : `${character?.colors?.primary || '#7C3AED'}50`,
-              }}
-            >
-              {isLoading ? <SpinnerIcon /> : isPlaying ? <StopIcon /> : <SpeakerIcon />}
-              <span>{hasError ? 'Error — try again' : isLoading ? 'Loading…' : isPlaying ? 'Stop' : 'Listen'}</span>
-            </button>
-          </div>
-        )}
-      </div>
-    </Wrapper>
+      {/* Share modal */}
+      {showShare && (
+        <ShareQuoteModal
+          message={message}
+          character={character}
+          onClose={() => setShowShare(false)}
+        />
+      )}
+    </>
   )
 }
 

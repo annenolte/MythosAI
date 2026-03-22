@@ -2,11 +2,14 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { useAuth } from '../context/AuthContext'
+import { useTheme } from '../context/ThemeContext'
 import { supabase } from '../lib/supabase'
 import { characters } from '../data/characters'
 import ParticleBackground from '../components/ParticleBackground'
 import CharacterCard from '../components/CharacterCard'
 import ConversationHistory from '../components/ConversationHistory'
+import MoodRecommender from '../components/MoodRecommender'
+import RelationshipGraph from '../components/RelationshipGraph'
 import {
   culturalBorders,
   culturalSymbols,
@@ -22,6 +25,7 @@ const mythologyGroups = [
 
 function CharacterSelect() {
   const { user, signOut } = useAuth()
+  const { isDark, toggleTheme } = useTheme()
   const navigate = useNavigate()
   const [conversations, setConversations] = useState([])
 
@@ -53,9 +57,20 @@ function CharacterSelect() {
     navigate(`/chat/${character.id}`)
   }
 
+  const handleSurpriseMe = () => {
+    const random = characters[Math.floor(Math.random() * characters.length)]
+    navigate(`/chat/${random.id}`)
+  }
+
   const handleSignOut = async () => {
     await signOut()
     navigate('/')
+  }
+
+  // Daily wisdom: pick a quote based on today's date
+  const getDailyWisdom = (char) => {
+    const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0)) / 86400000)
+    return char.dailyWisdom[dayOfYear % char.dailyWisdom.length]
   }
 
   return (
@@ -64,29 +79,115 @@ function CharacterSelect() {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.5 }}
-      className="min-h-screen relative"
+      className={`min-h-screen relative ${isDark ? 'bg-slate-900' : ''}`}
     >
       <ParticleBackground />
 
       <div className="relative z-10 max-w-6xl mx-auto px-4 py-8">
         {/* Header */}
-        <div className="flex items-center justify-between mb-10">
+        <div className="flex items-center justify-between mb-6">
           <div>
             <h1
-              className="text-4xl font-bold text-purple-900 mb-1"
+              className={`text-4xl font-bold mb-1 ${isDark ? 'text-purple-200' : 'text-purple-900'}`}
               style={{ fontFamily: "'Cinzel Decorative', Georgia, serif" }}
             >
               Choose Your Oracle
             </h1>
-            <p className="text-slate-500 text-sm">{user?.email}</p>
+            <p className={`text-sm ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{user?.email}</p>
           </div>
+          <div className="flex items-center gap-2">
+            {/* Dark mode toggle */}
+            <button
+              onClick={toggleTheme}
+              className={`p-2.5 rounded-xl transition-all ${
+                isDark
+                  ? 'bg-slate-700 text-yellow-400 hover:bg-slate-600'
+                  : 'bg-white/50 text-slate-600 hover:bg-white/70'
+              }`}
+              title={isDark ? 'Light mode' : 'Dark mode'}
+            >
+              {isDark ? (
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="5" />
+                  <line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" />
+                  <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" /><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+                  <line x1="1" y1="12" x2="3" y2="12" /><line x1="21" y1="12" x2="23" y2="12" />
+                  <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" /><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+                </svg>
+              ) : (
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+                </svg>
+              )}
+            </button>
+            <button
+              onClick={handleSignOut}
+              className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300 ${
+                isDark
+                  ? 'text-purple-300 hover:text-purple-100 bg-slate-700/50 hover:bg-slate-700 border-2 border-purple-700 hover:border-purple-500'
+                  : 'text-purple-700 hover:text-purple-900 bg-white/50 hover:bg-white/70 border-2 border-purple-300 hover:border-purple-400'
+              }`}
+            >
+              Sign Out
+            </button>
+          </div>
+        </div>
+
+        {/* Feature buttons row */}
+        <div className="flex flex-wrap gap-3 mb-6">
+          {/* Surprise Me */}
           <button
-            onClick={handleSignOut}
-            className="px-4 py-2 rounded-xl text-sm text-purple-700 hover:text-purple-900 bg-white/50 hover:bg-white/70 border-2 border-purple-300 hover:border-purple-400 transition-all duration-300 font-medium"
+            onClick={handleSurpriseMe}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium bg-gradient-to-r from-amber-400 to-orange-500 text-white shadow-lg shadow-amber-300/20 hover:shadow-amber-300/40 transition-all"
           >
-            Sign Out
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 2L2 7l10 5 10-5-10-5z" /><path d="M2 17l10 5 10-5" /><path d="M2 12l10 5 10-5" />
+            </svg>
+            Surprise Me
+          </button>
+
+          {/* Oracle Debate */}
+          <button
+            onClick={() => navigate('/debate')}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium bg-gradient-to-r from-rose-400 to-purple-500 text-white shadow-lg shadow-rose-300/20 hover:shadow-rose-300/40 transition-all"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+            </svg>
+            Oracle Debate
+          </button>
+
+          {/* Personality Quiz */}
+          <button
+            onClick={() => navigate('/quiz')}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium bg-gradient-to-r from-teal-400 to-cyan-500 text-white shadow-lg shadow-teal-300/20 hover:shadow-teal-300/40 transition-all"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10" />
+              <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+              <line x1="12" y1="17" x2="12.01" y2="17" />
+            </svg>
+            Which Oracle Are You?
+          </button>
+
+          {/* Wisdom Journal */}
+          <button
+            onClick={() => navigate('/journal')}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium bg-gradient-to-r from-indigo-400 to-violet-500 text-white shadow-lg shadow-indigo-300/20 hover:shadow-indigo-300/40 transition-all"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+            </svg>
+            Wisdom Journal
           </button>
         </div>
+
+        {/* Mood Recommender */}
+        <MoodRecommender />
+
+        {/* Relationship Graph */}
+        <RelationshipGraph />
 
         {/* Conversation History */}
         {conversations.length > 0 && (
@@ -94,7 +195,11 @@ function CharacterSelect() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="mb-10 bg-white/60 backdrop-blur-xl rounded-3xl p-6 border border-purple-100/50 shadow-lg shadow-purple-100/20"
+            className={`mb-10 backdrop-blur-xl rounded-3xl p-6 border shadow-lg ${
+              isDark
+                ? 'bg-slate-800/60 border-purple-900/50 shadow-purple-900/20'
+                : 'bg-white/60 border-purple-100/50 shadow-purple-100/20'
+            }`}
           >
             <ConversationHistory
               conversations={conversations}
@@ -130,7 +235,7 @@ function CharacterSelect() {
               {/* Section Header with cultural symbols */}
               <div className="flex items-center gap-3 my-4">
                 <h2
-                  className="text-xl font-bold text-slate-800"
+                  className={`text-xl font-bold ${isDark ? 'text-slate-200' : 'text-slate-800'}`}
                   style={{ fontFamily: "'Cinzel Decorative', Georgia, serif" }}
                 >
                   {group.name} Mythology
@@ -160,6 +265,7 @@ function CharacterSelect() {
                       <CharacterCard
                         character={character}
                         onClick={() => handleSelectCharacter(character)}
+                        dailyWisdom={getDailyWisdom(character)}
                       />
                     </motion.div>
                   ))}
