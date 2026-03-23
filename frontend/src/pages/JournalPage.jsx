@@ -123,7 +123,7 @@ function JournalPage() {
           <div className="space-y-4">
             <AnimatePresence>
               {filtered.map((entry, index) => {
-                const char = characters.find((c) => c.id === entry.characterId)
+                const char = characters.find((c) => c.id === entry.character_id)
                 const AvatarComponent = char ? avatarMap[char.id] : null
 
                 return (
