@@ -30,7 +30,7 @@ Claude Code<br>
    language conversation in the terminal.
 
 Languages<br>
-  -JavaScript (React/JSX) — frontend UI, components, and routing
+  - JavaScript (React/JSX) — frontend UI, components, and routing
   - CSS (Tailwind CSS) — styling and responsive design
   - Python — backend API server with FastAPI
   - SQL — Supabase database migrations and row-level security policies
