@@ -3,6 +3,8 @@ import { motion } from 'framer-motion'
 import ReactMarkdown from 'react-markdown'
 import { avatarMap } from './characters'
 import { API_BASE } from '../lib/api'
+import { supabase } from '../lib/supabase'
+import { useAuth } from '../context/AuthContext'
 import { useTheme } from '../context/ThemeContext'
 import ShareQuoteModal from './ShareQuoteModal'
 
@@ -39,6 +41,7 @@ function ChatMessage({ message, character, isNew, userQuestion }) {
   const isUser = message.role === 'user'
   const AvatarComponent = avatarMap[character?.id]
   const { isDark } = useTheme()
+  const { user } = useAuth()
   const [isLoading, setIsLoading] = useState(false)
   const [isPlaying, setIsPlaying] = useState(false)
   const [hasError, setHasError] = useState(false)
@@ -117,17 +120,20 @@ function ChatMessage({ message, character, isNew, userQuestion }) {
     }
   }
 
-  const handleBookmark = () => {
-    const journal = JSON.parse(localStorage.getItem('oracle-journal') || '[]')
-    journal.push({
-      characterId: character?.id,
+  const handleBookmark = async () => {
+    if (!supabase || !user) return
+
+    const { error } = await supabase.from('journal_entries').insert({
+      user_id: user.id,
+      character_id: character?.id,
       content: message.content,
-      userQuestion: userQuestion || null,
-      savedAt: new Date().toISOString(),
+      user_question: userQuestion || null,
     })
-    localStorage.setItem('oracle-journal', JSON.stringify(journal))
-    setBookmarked(true)
-    setTimeout(() => setBookmarked(false), 2000)
+
+    if (!error) {
+      setBookmarked(true)
+      setTimeout(() => setBookmarked(false), 2000)
+    }
   }
 
   // Don't re-animate streaming messages on every token — only animate on first appear

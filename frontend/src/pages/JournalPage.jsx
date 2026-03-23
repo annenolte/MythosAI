@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { characters } from '../data/characters'
 import { avatarMap } from '../components/characters'
+import { supabase } from '../lib/supabase'
 import ParticleBackground from '../components/ParticleBackground'
 
 function JournalPage() {
@@ -11,19 +12,28 @@ function JournalPage() {
   const [filter, setFilter] = useState('all')
 
   useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem('oracle-journal') || '[]')
-    setEntries(saved.sort((a, b) => new Date(b.savedAt) - new Date(a.savedAt)))
+    if (!supabase) return
+    supabase
+      .from('journal_entries')
+      .select('*')
+      .order('saved_at', { ascending: false })
+      .then(({ data }) => {
+        if (data) setEntries(data)
+      })
   }, [])
 
-  const removeEntry = (index) => {
-    const updated = entries.filter((_, i) => i !== index)
-    setEntries(updated)
-    localStorage.setItem('oracle-journal', JSON.stringify(updated))
+  const removeEntry = async (index) => {
+    const entry = entries[index]
+    if (!supabase || !entry) return
+    const { error } = await supabase.from('journal_entries').delete().eq('id', entry.id)
+    if (!error) {
+      setEntries(entries.filter((_, i) => i !== index))
+    }
   }
 
   const filtered = filter === 'all'
     ? entries
-    : entries.filter((e) => e.characterId === filter)
+    : entries.filter((e) => e.character_id === filter)
 
   const formatDate = (dateStr) => {
     const d = new Date(dateStr)
@@ -75,7 +85,7 @@ function JournalPage() {
             All
           </button>
           {characters.map((char) => {
-            const count = entries.filter((e) => e.characterId === char.id).length
+            const count = entries.filter((e) => e.character_id === char.id).length
             if (count === 0) return null
             return (
               <button
@@ -118,7 +128,7 @@ function JournalPage() {
 
                 return (
                   <motion.div
-                    key={entry.savedAt + index}
+                    key={entry.saved_at + index}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, x: 100 }}
@@ -135,15 +145,15 @@ function JournalPage() {
                             {char?.name || 'Unknown'}
                           </span>
                           <span className="text-xs text-slate-400 dark:text-slate-500">
-                            {formatDate(entry.savedAt)}
+                            {formatDate(entry.saved_at)}
                           </span>
                         </div>
                         <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap">
                           {entry.content}
                         </p>
-                        {entry.userQuestion && (
+                        {entry.user_question && (
                           <p className="text-xs text-slate-400 dark:text-slate-500 mt-2 italic">
-                            In response to: &ldquo;{entry.userQuestion}&rdquo;
+                            In response to: &ldquo;{entry.user_question}&rdquo;
                           </p>
                         )}
                       </div>
