@@ -385,6 +385,17 @@ function ChatPage() {
           {/* Character intro card */}
           <CharacterIntro character={character} />
 
+          {messages.length === 0 && isLoading && (
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5 }}
+              className="text-center text-sm text-slate-400 dark:text-slate-500 mt-4"
+            >
+              The oracle is awakening... this may take up to 30 seconds.
+            </motion.p>
+          )}
+
           {messages.map((message, index) => (
             <ChatMessage
               key={index}
