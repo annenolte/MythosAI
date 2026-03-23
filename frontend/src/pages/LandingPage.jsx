@@ -113,7 +113,7 @@ function LandingPage() {
           className="text-6xl sm:text-7xl font-bold mb-3 tracking-tight oracle-title"
           style={{ fontFamily: "'Cinzel Decorative', cursive", color: '#B8860B' }}
         >
-          The Oracle
+          MythosAI
         </motion.h1>
 
         {/* Colorful decorative divider */}

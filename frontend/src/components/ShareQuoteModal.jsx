@@ -10,7 +10,7 @@ function ShareQuoteModal({ message, character, onClose }) {
     : message.content
 
   const handleCopyText = async () => {
-    const text = `"${quote}"\n\n— ${character.name}, The Oracle`
+    const text = `"${quote}"\n\n— ${character.name}, MythosAI`
     await navigator.clipboard.writeText(text)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
@@ -77,7 +77,7 @@ function ShareQuoteModal({ message, character, onClose }) {
     // App branding
     ctx.fillStyle = '#64748b'
     ctx.font = '13px sans-serif'
-    ctx.fillText('The Oracle \u2022 Ancient wisdom for the modern age', 60, 450)
+    ctx.fillText('MythosAI \u2022 Ancient wisdom for the modern age', 60, 450)
 
     // Small accent line
     ctx.fillStyle = character.colors.primary
@@ -85,7 +85,7 @@ function ShareQuoteModal({ message, character, onClose }) {
 
     // Download
     const link = document.createElement('a')
-    link.download = `oracle-wisdom-${character.id}.png`
+    link.download = `mythos-wisdom-${character.id}.png`
     link.href = canvas.toDataURL('image/png')
     link.click()
   }
