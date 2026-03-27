@@ -25,7 +25,7 @@ ElevenLabs<br>
   character's personality.
 
 Claude Code<br>
-  The AI-powered development tool used to build and maintain MythosAI. It assisted with writing frontend
+  The AI-powered development tool used to build and maintain MythosAI. It assisted with writing the frontend
   and backend code, managing Git history, configuring Supabase integrations, and deploying changes — all through natural
    language conversation in the terminal.
 
